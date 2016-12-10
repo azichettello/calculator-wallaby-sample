@@ -4,11 +4,14 @@ describe('calculator model', function() {
     this.calculator = new Calculator();
   });
 
-  it('should add numbers', function() {;
-    expect(this.calculator.LastValue).toBe(5);
+  it('should add numbers', function() {
     expect(this.calculator.add(2, 2)).toBe(4);
     expect(this.calculator.LastValue).toBe(4);
+  });
 
+  it('should save the result of add', function() {
+    expect(this.calculator.add(2, 2)).toBe(4);
+    expect(this.calculator.LastValue).toBe(4);
   });
 
   it('should throw error when dividing by zero', function() {
@@ -17,10 +20,6 @@ describe('calculator model', function() {
     expect(function() {
       calculator.divide(1, 0);
     }).toThrow();
-
-    // console.log(this.calculator.divide(2, 0));
-    console.log(this.calculator.divide(0, 2));
-    console.log(this.calculator.divide(2, -3));
   });
 
   it('should divide number', function() {

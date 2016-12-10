@@ -10,7 +10,7 @@ Calculator.prototype.multiply = function(a, b) {
   if (a === 0 || b === 0) {
     return 0;
   }
-  console.log(a * b);
+  return a * b
 };
 
 Calculator.prototype.subtract = function(a, b) {
