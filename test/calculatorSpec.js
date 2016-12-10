@@ -4,11 +4,11 @@ describe('calculator model', function() {
     this.calculator = new Calculator();
   });
 
-  it('should add numbers', function() {
-    console.log(this.calculator.add(Infinity, NaN));
-    console.log(this.calculator.add(2, 3));
-
+  it('should add numbers', function() {;
+    expect(this.calculator.LastValue).toBe(5);
     expect(this.calculator.add(2, 2)).toBe(4);
+    expect(this.calculator.LastValue).toBe(4);
+
   });
 
   it('should throw error when dividing by zero', function() {
@@ -35,6 +35,24 @@ describe('calculator model', function() {
     expect(this.calculator.multiply(0, 3)).toBe(0);
     expect(this.calculator.multiply(3, 0)).toBe(0);
   });
+
+  it('should raise to power of numbers', function() {
+    expect(this.calculator.exponent(2, 3)).toBe(8);
+    expect(this.calculator.exponent(0, 3)).toBe(0);
+    expect(this.calculator.exponent(4, 0)).toBe(1);
+    expect(this.calculator.exponent(3, -1)).toBe(1/3);
+
+  });
+
+  it('should yield square root', function() {
+    expect(this.calculator.sqrt(16)).toBe(4);
+  });
+
+  it('should yield sine in radians', function() {
+    expect(this.calculator.sin(Math.PI)).toBeGreaterThan(-.001);
+    expect(this.calculator.sin(Math.PI)).toBeLessThan(.001);
+  });
+
 });
 
 describe('calculator view', function() {
