@@ -51,6 +51,10 @@ html {
     letter-spacing: 1px;
 }
 
+.keys {
+    width: 300px;
+}
+
 .keys, .top {overflow: hidden;}
 
 .keys span, .top span.clear {

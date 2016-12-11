@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>Calculator</title>
+    <link rel="stylesheet" type="text/css" href="./style/calculator.css">
+</head>
+<body>
+
+</body>
+
+<script src="./src/calculatorView.js"></script>
+<script src="./test/helper/template.js"></script>
+
+<script>
+    var div = document.createElement('div')
+    div.setAttribute('id', 'calculator')
+    div.innerHTML = calculatorTemplate
+    document.body.appendChild(div)
+
+    initCalculator()
+</script>
+
+</html>
