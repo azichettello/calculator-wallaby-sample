@@ -2,16 +2,22 @@ describe('calculator model', function() {
 
   beforeEach(function() {
     this.calculator = new Calculator();
+    window.cachedAnswers = {}
   });
 
-  // it('should utilize a global wrapper around operations', function() {
-  //   expect(this.calculator.evaluate('multiply', [3, 4]))
-  //     .toBe(this.calculator.multiply(3, 3));
-  //   expect(this.calculator.evaluate('add', [3, 4]))
-  //     .toBe(this.calculator.multiply(3, 3));
-  //   expect(this.calculator.evaluate('add', [3]))
-  //     .toBe(this.calculator.multiply(3, 3));
-  // });
+  it('utilizes a global wrapper around operations', function() {
+    expect(this.calculator.evaluate('multiply', [3, 4]))
+      .toBe(this.calculator.multiply(3, 4));
+
+    expect(this.calculator.evaluate('sqrt', [9]))
+      .toBe(this.calculator.sqrt(9));
+
+
+    this.calculator.lastAnswer = 4
+    expect(this.calculator.evaluate('exponent', [2]))
+      .toBe(this.calculator.exponent(4, 2));
+
+  });
 
   it('throws error if given too many arguments', function() {
     expect(this.calculator.evaluate(
@@ -40,12 +46,12 @@ describe('calculator model', function() {
       [2]
     )).toBe(2)
 
-    expect(this.calculator.answer).toBe(2)
+    expect(this.calculator.lastAnswer).toBe(2)
   });
 
   describe('utilizes one less argument than needed', function(){
     it('starting from answer = 0', function() {
-      console.log(this.calculator.answer)
+      console.log(this.calculator.lastAnswer)
       expect(this.calculator.evaluate(
         'multiply',
         [5]
@@ -53,7 +59,7 @@ describe('calculator model', function() {
     });
 
     it('after state change', function() {
-      this.calculator.answer = 5
+      this.calculator.lastAnswer = 5
       expect(this.calculator.evaluate(
         'multiply',
         [5]
@@ -61,110 +67,106 @@ describe('calculator model', function() {
     });
   })
 
-  // it('should add numbers', function() {
-  //   expect(this.calculator.add(2, 2)).toBe(4);
-  //   expect(this.calculator.answer).toBe(4);
-  // });
-  //
-  // it('should save the result of add', function() {
-  //   expect(this.calculator.add(2, 2)).toBe(4);
-  //   expect(this.calculator.answer).toBe(4);
-  // });
-  //
-  // it('should throw error when dividing by zero', function() {
-  //   var calculator = this.calculator;
-  //
-  //   expect(function() {
-  //     calculator.divide(1, 0);
-  //   }).toThrow();
-  // });
-  //
-  // it('should divide number', function() {
-  //   expect(this.calculator.divide(6, 2)).toBe(3);
-  // });
-  //
-  // it('should save after dividing number', function() {
-  //   expect(this.calculator.divide(6, 2)).toBe(3);
-  //   expect(this.calculator.answer).toBe(3);
-  // });
-  //
-  // it('should subtract positive numbers', function() {
-  //   expect(this.calculator.subtract(4, 2)).toBe(2);
-  // });
+  it('memoizes', function() {
+    var calc = this.calculator
+    calc.evaluate('add', [6, 2])
+    calc.evaluate('add', [6, 2])
+    expect(calc.wasLastCached).toBe(true)
+    calc.evaluate('add', [6, 3])
+    expect(calc.wasLastCached).toBe(false)
+    calc.evaluate('add', [2, 6])
+    expect(calc.wasLastCached).toBe(true)
+    console.log(window.cachedAnswers)
 
-  // it('should multiply numbers', function() {
-  //   expect(this.calculator.multiply(0, 3)).toBe(0);
-  //   expect(this.calculator.multiply(3, 0)).toBe(0);
-  // });
-  //
-  // it('raises to power of numbers', function() {
-  //   expect(this.calculator.exponent(2, 3)).toBe(8);
-  //   expect(this.calculator.exponent(0, 3)).toBe(0);
-  //   expect(this.calculator.exponent(4, 0)).toBe(1);
-  //   expect(this.calculator.exponent(3, -1)).toBe(1/3);
-  //
-  // });
+  });
 
-  // it('yields square root', function() {
-  //   expect(this.calculator.sqrt(16)).toBe(4);
-  // });
+  it('stores reversible caching', function() {
+    var calc = this.calculator
+    calc.evaluate('add', [6, 2])
+    expect(window.cachedAnswers['add,6,2']).toBe(8)
+    expect(window.cachedAnswers['add,2,6']).toBe(8)
 
+    calc.evaluate('sin', [0])
+    expect(window.cachedAnswers['sin,0']).toBe(0)
+    console.log(window.cachedAnswers)
+  });
 
-  // it('yields sine in radians', function() {
-  //   expect(this.calculator.sin(Math.PI)).toBeGreaterThan(-.001);
-  //   expect(this.calculator.sin(Math.PI)).toBeLessThan(.001);
-  // });
+  it('stores irrational numbers', function() {
+    var calc = this.calculator
+    calc.evaluate('add', [1/7, 2])
+    expect(window.cachedAnswers['add,' + 1/7 + ',2']).toBe(2 + 1/7)
+    calc.evaluate('divide', [1, 7])
+    expect(window.cachedAnswers['divide,1,7']).toBe(1/7)
+  });
+
+  it('handles two calculators', function() {
+
+    var calc = this.calculator
+
+    function doCalc1Add(){
+      return calc.evaluate('add', [2, 4])
+    }
+
+    doCalc1Add()
+
+    var calc2 = new Calculator()
+
+    doCalc1Add()
+
+    expect(calc.wasLastCached).toBe(true)
+    expect(cachedAnswers['add,2,4']).toBeTruthy()
+  });
 
 });
-//
-// describe('calculator view', function() {
-//
-//   beforeEach(function() {
-//     $('body').append("<div id=\"calculator\"/>");
-//     $('#calculator').html(calculatorTemplate);
-//     initCalculator();
-//   });
-//
-//   afterEach(function() {
-//     $('#calculator').remove();
-//   });
-//
-//   it('should add numbers', function() {
-//
-//     console.log(window.document.body.clientHeight);
-//
-//     $('#7').click();
-//     $('#plus').click();
-//     $('#9').click();
-//     $('#eval').click();
-//
-//     expect($('.screen').text()).toBe('16');
-//   });
-//
-//   it('should divide numbers', function() {
-//     $('#6').click();
-//     $('#divide').click();
-//     $('#3').click();
-//     $('#eval').click();
-//
-//     expect($('.screen').text()).toBe('2');
-//   });
-//
-//   it('should multiply numbers', function() {
-//     $('#7').click();
-//     $('#multiply').click();
-//     $('#8').click();
-//     $('#eval').click();
-//
-//     expect($('.screen').text()).toBe('56');
-//   });
-//
-//   it('should subtract numbers', function() {
-//     $('#7').click();
-//     $('#minus').click();
-//     $('#8').click();
-//     $('#eval').click();
-//
-//     expect($('.screen').text()).toBe('-1');
-//   });
-// });
+
+describe('calculator view', function() {
+
+  beforeEach(function() {
+    $('body').append("<div id=\"calculator\"/>");
+    $('#calculator').html(calculatorTemplate);
+    initCalculator();
+  });
+
+  afterEach(function() {
+    $('#calculator').remove();
+  });
+
+  it('should add numbers', function() {
+
+    console.log(window.document.body.clientHeight);
+
+    $('#7').click();
+    $('#plus').click();
+    $('#9').click();
+    $('#eval').click();
+
+    expect($('.screen').text()).toBe('16');
+  });
+
+  it('should divide numbers', function() {
+    $('#6').click();
+    $('#divide').click();
+    $('#3').click();
+    $('#eval').click();
+
+    expect($('.screen').text()).toBe('2');
+  });
+
+  it('should multiply numbers', function() {
+    $('#7').click();
+    $('#multiply').click();
+    $('#8').click();
+    $('#eval').click();
+
+    expect($('.screen').text()).toBe('56');
+  });
+
+  it('should subtract numbers', function() {
+    $('#7').click();
+    $('#minus').click();
+    $('#8').click();
+    $('#eval').click();
+
+    expect($('.screen').text()).toBe('-1');
+  });
+});
