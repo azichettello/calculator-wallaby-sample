@@ -1,20 +1,79 @@
 var Calculator = function() {
-  this.lastAnswer = 0
   if(!window.cachedAnswers) window.cachedAnswers = {}
+  this.clear()
 };
 
 // Stateful functions
 Calculator.prototype.clear = function() {
-  return this.lastAnswer = 0
+  this.operator = null
+  this.headFinalized = false
+  this.strings = {
+    head: 0,
+    tail: 0
+  }
 };
+
+Calculator.prototype.getHead = function() {
+  if(this.strings.head) return parseInt(this.strings.head)
+  else return 0
+}
+
+Calculator.prototype.getTail = function() {
+  if(this.strings.tail) return parseInt(this.strings.tail)
+  else return 0
+}
+
+Calculator.prototype.setHead = function(head) {
+  this.strings.head = JSON.stringify(head)
+}
+
+Calculator.prototype.addToHead = function(char) {
+  this.strings.head += char
+}
+
+Calculator.prototype.addToTail = function(char) {
+  this.strings.tail += char
+}
+
+Calculator.prototype.setTail = function(tail) {
+  this.strings.tail = JSON.stringify(tail)
+}
+
+Calculator.prototype.setOperator = function(op) {
+  this.operator = op
+}
+
+var operatorStringMap = {
+  '+': 'add',
+  '-': 'subtract',
+  'x': 'multiply',
+  '÷': 'divide'
+}
+
+
+// Stateless functions
+
+Calculator.prototype.getOperator = function() {
+  return operatorStringMap[this.operator]
+}
+
+Calculator.prototype.evalFromState = function() {
+  return this.evaluate(
+    this.getOperator(),
+    [
+      this.getHead(),
+      this.getTail()
+    ])
+}
 
 Calculator.prototype.evaluate = function(operation, arguments) {
 
   var numOfExpectedArguments = this[operation].length,
     numOfArguments = arguments.length,
     difference = numOfExpectedArguments - numOfArguments,
-    answer = null;
-  
+    answer = null,
+    lastAnswer = this.getHead()
+
   // Error handling
   if(difference < 0)
     return "Expected " + -difference + " less argument(s)"
@@ -28,7 +87,7 @@ Calculator.prototype.evaluate = function(operation, arguments) {
   }
 
   else if(difference === 1) {
-    arguments = [this.lastAnswer].concat(arguments)
+    arguments = [lastAnswer].concat(arguments)
   }
 
   var wasLastCached = true
@@ -41,7 +100,8 @@ Calculator.prototype.evaluate = function(operation, arguments) {
 
   // Change state and return
   this.wasLastCached = wasLastCached
-  return this.lastAnswer = answer
+  this.setHead(answer)
+  return answer
 };
 
 function makeKey(operation, arguments){
@@ -80,7 +140,7 @@ function putCached(operation, arguments, val, isReversible){
 
 // Stateless functions
 Calculator.prototype.add = function(first, second) {
-  return first + second // eval("3+4")
+  return first + second
 };
 Calculator.prototype.add.reversible = true
 

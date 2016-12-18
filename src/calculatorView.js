@@ -1,4 +1,7 @@
 var initCalculator = function() {
+
+  var calculator = new Calculator()
+
   // Get all the keys from document
   var keys = document.querySelectorAll('#calculator span');
   var operators = ['+', '-', 'x', '÷'];
@@ -16,6 +19,7 @@ var initCalculator = function() {
       // Now, just append the key values (btnValue) to the input string and finally use javascript's eval function to get the result
       // If clear key is pressed, erase everything
       if (btnVal == 'C') {
+        calculator.clear()
         input.innerHTML = '';
         decimalAdded = false;
       }
@@ -32,9 +36,11 @@ var initCalculator = function() {
         if (operators.indexOf(lastChar) > -1 || lastChar == '.')
           equation = equation.replace(/.$/, '');
 
-        if (equation)
-          input.innerHTML = eval(equation);
-
+        if (equation) {
+          var a = calculator.evalFromState()
+          calculator.setTail(0)
+          input.innerHTML = a
+        }
         decimalAdded = false;
       }
 
@@ -47,25 +53,35 @@ var initCalculator = function() {
 
       // indexOf works only in IE9+
       else if (operators.indexOf(btnVal) > -1) {
+
+        console.log(btnVal)
+        calculator.setOperator(btnVal)
+
         // Operator is clicked
         // Get the last character from the equation
         lastChar = inputVal[inputVal.length - 1];
 
         // Only add operator if input is not empty and there is no operator at the last
-        if (inputVal != '' && operators.indexOf(lastChar) == -1)
-          input.innerHTML += btnVal;
-
-        // Allow minus if the string is empty
-        else if (inputVal == '' && btnVal == '-')
-          input.innerHTML += btnVal;
-
-        // Replace the last operator (if exists) with the newly pressed operator
-        if (operators.indexOf(lastChar) > -1 && inputVal.length > 1) {
-          // Here, '.' matches any character while $ denotes the end of string, so anything (will be an operator in this case) at the end of string will get replaced by new operator
-          input.innerHTML = inputVal.replace(/.$/, btnVal);
-        }
+        // if (inputVal != '' && operators.indexOf(lastChar) == -1)
+        //   input.innerHTML += btnVal;
+        //
+        // // Allow minus if the string is empty
+        // else if (inputVal == '' && btnVal == '-')
+        //   input.innerHTML += btnVal;
+        //
+        // // Replace the last operator (if exists) with the newly pressed operator
+        // if (operators.indexOf(lastChar) > -1 && inputVal.length > 1) {
+        //   // Here, '.' matches any character while $ denotes the end of string, so anything (will be an operator in this case) at the end of string will get replaced by new operator
+        //   input.innerHTML = inputVal.replace(/.$/, btnVal);
+        // }
 
         decimalAdded = false;
+
+        console.log(input.innerHTML)
+        calculator.headFinalized = true
+        // var answer = calculator.evalFromState()
+        // console.log(answer)
+        // input.innerHTML = answer
       }
 
       // Now only the decimal problem is left. We can solve it easily using a flag 'decimalAdded' which we'll set once the decimal is added and prevent more decimals to be added once it's set. It will be reset when an operator, eval or clear key is pressed.
@@ -76,13 +92,22 @@ var initCalculator = function() {
         }
       }
 
-      // if any other key is pressed, just append it
       else {
+        if(calculator.headFinalized) {
+          var tail = calculator.getTail()
+          if(!tail) input.innerHTML = ''
+          calculator.addToTail(btnVal)
+        }
+        else calculator.addToHead(btnVal)
         input.innerHTML += btnVal;
       }
+
+      console.log(input.innerHTML)
 
       // prevent page jumps
       e.preventDefault();
     }
   }
+
+  return calculator
 };

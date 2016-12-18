@@ -12,8 +12,7 @@ describe('calculator model', function() {
     expect(this.calculator.evaluate('sqrt', [9]))
       .toBe(this.calculator.sqrt(9));
 
-
-    this.calculator.lastAnswer = 4
+    this.calculator.setHead(4)
     expect(this.calculator.evaluate('exponent', [2]))
       .toBe(this.calculator.exponent(4, 2));
 
@@ -46,12 +45,11 @@ describe('calculator model', function() {
       [2]
     )).toBe(2)
 
-    expect(this.calculator.lastAnswer).toBe(2)
+    expect(this.calculator.getHead()).toBe(2)
   });
 
   describe('utilizes one less argument than needed', function(){
     it('starting from answer = 0', function() {
-      console.log(this.calculator.lastAnswer)
       expect(this.calculator.evaluate(
         'multiply',
         [5]
@@ -59,7 +57,7 @@ describe('calculator model', function() {
     });
 
     it('after state change', function() {
-      this.calculator.lastAnswer = 5
+      this.calculator.setHead(5)
       expect(this.calculator.evaluate(
         'multiply',
         [5]
@@ -124,7 +122,7 @@ describe('calculator view', function() {
   beforeEach(function() {
     $('body').append("<div id=\"calculator\"/>");
     $('#calculator').html(calculatorTemplate);
-    initCalculator();
+    this.calculator = initCalculator();
   });
 
   afterEach(function() {
@@ -133,40 +131,94 @@ describe('calculator view', function() {
 
   it('should add numbers', function() {
 
-    console.log(window.document.body.clientHeight);
+    $('#7').click();
+    $('#plus').click();
+    expect($('.screen').text()).toBe('7');
+    $('#9').click();
+    expect($('.screen').text()).toBe('9');
+    $('#eval').click();
+    expect($('.screen').text()).toBe('16');
+  });
 
+  it('should add numbers with more than 1 digit', function() {
+    $('#7').click();
     $('#7').click();
     $('#plus').click();
     $('#9').click();
     $('#eval').click();
+    expect($('.screen').text()).toBe('86');
+  });
 
+  it('should add numbers with more than 1 digit', function() {
+    $('#7').click();
+    $('#7').click();
+    $('#plus').click();
+    $('#9').click();
+    $('#eval').click();
+    expect($('.screen').text()).toBe('86');
+  });
+
+  it('should clear and continue to work', function() {
+    $('#7').click();
+    $('#plus').click();
+    $('#9').click();
+    $('#eval').click();
     expect($('.screen').text()).toBe('16');
-  });
-
-  it('should divide numbers', function() {
-    $('#6').click();
-    $('#divide').click();
-    $('#3').click();
-    $('#eval').click();
-
-    expect($('.screen').text()).toBe('2');
-  });
-
-  it('should multiply numbers', function() {
+    this.calculator.clear()
     $('#7').click();
-    $('#multiply').click();
-    $('#8').click();
-    $('#eval').click();
-
-    expect($('.screen').text()).toBe('56');
-  });
-
-  it('should subtract numbers', function() {
+    $('#plus').click();
     $('#7').click();
-    $('#minus').click();
-    $('#8').click();
+    $('#eval').click();
+    expect($('.screen').text()).toBe('14');
+  });
+
+  it('should be chainable', function() {
+    $('#7').click();
+    $('#plus').click();
+    $('#9').click();
+    $('#eval').click();
+    expect($('.screen').text()).toBe('16');
+
+    $('#plus').click();
+    $('#7').click();
     $('#eval').click();
 
-    expect($('.screen').text()).toBe('-1');
+    expect($('.screen').text()).toBe('23');
   });
+
+  // it('should assume zero when operator pressed requires 1 argument', function() {
+  //   // never?
+  //   $('#4').click();
+  //   $('#plus').click();
+  //   $('#sqrt').click();
+  //   $('#eval').click();
+  //   expect($('.screen').text()).toBe('2');
+  // });
+
+  // it('should divide numbers', function() {
+  //   $('#6').click();
+  //   $('#divide').click();
+  //   $('#3').click();
+  //   $('#eval').click();
+  //
+  //   expect($('.screen').text()).toBe('2');
+  // });
+  //
+  // it('should multiply numbers', function() {
+  //   $('#7').click();
+  //   $('#multiply').click();
+  //   $('#8').click();
+  //   $('#eval').click();
+  //
+  //   expect($('.screen').text()).toBe('56');
+  // });
+  //
+  // it('should subtract numbers', function() {
+  //   $('#7').click();
+  //   $('#minus').click();
+  //   $('#8').click();
+  //   $('#eval').click();
+  //
+  //   expect($('.screen').text()).toBe('-1');
+  // });
 });
